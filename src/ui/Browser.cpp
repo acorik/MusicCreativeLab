@@ -32,7 +32,7 @@ Browser::Browser (AudioEngine& e) : engine (e)
     list.setRowHeight (24);
     list.setColour (juce::ListBox::backgroundColourId, Colours::panel);
     addAndMakeVisible (list);
-    for (auto* b : { &scanBtn, &folderBtn, &freeBtn }) { b->setWantsKeyboardFocus (false); addAndMakeVisible (b); }
+    for (auto* b : { &scanBtn, &folderBtn, &freeBtn }) { b->setWantsKeyboardFocus (false); addAndMakeVisible (b); b->setVisible (! MCL_LITE); }
     status.setFont (juce::FontOptions (11.0f));
     status.setColour (juce::Label::textColourId, Colours::textDim);
     addAndMakeVisible (status);
@@ -73,7 +73,8 @@ void Browser::changeListenerCallback (juce::ChangeBroadcaster*)
 
 void Browser::timerCallback()
 {
-    auto txt = engine.plugins.isScanning() ? engine.plugins.getScanStatus()
+    auto txt = MCL_LITE ? juce::String ("Version Lite (sin VST)  |  doble clic para anadir")
+             : engine.plugins.isScanning() ? engine.plugins.getScanStatus()
                                            : juce::String (engine.plugins.known.getNumTypes()) + " VST en tu PC  |  doble clic para anadir";
     if (status.getText() != txt) status.setText (txt, juce::dontSendNotification);
 }
@@ -97,6 +98,8 @@ void Browser::refresh()
     header ("EFECTOS (a la pista seleccionada)");
     auto& fx = getBuiltInEffectTypes();
     for (int i = 0; i < (int) fx.size(); ++i) if (match (fx[(size_t) i].name)) items.push_back ({ Fx, i, fx[(size_t) i].name, false });
+
+    if (MCL_LITE) return; // Lite edition: no VST hosting
 
     header ("MIS VST - instrumentos");
     auto vi = engine.plugins.getInstruments();
@@ -195,7 +198,8 @@ void Browser::resized()
     auto r = getLocalBounds().reduced (6);
     search.setBounds (r.removeFromTop (28));
     r.removeFromTop (4);
-    auto bottom = r.removeFromBottom (92);
+    auto bottom = r.removeFromBottom (MCL_LITE ? 28 : 92);
+    if (MCL_LITE) { status.setBounds (bottom); list.setBounds (r); return; }
     auto b1 = bottom.removeFromTop (30);
     folderBtn.setBounds (b1.removeFromRight (86).reduced (2));
     scanBtn.setBounds (b1.reduced (2));

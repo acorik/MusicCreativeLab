@@ -173,7 +173,7 @@ void Inspector::showInstrumentMenu()
     auto inst = engine.plugins.getInstruments();
     for (int i = 0; i < inst.size(); ++i) vst.addItem (100 + i, inst[i].name + "  (" + inst[i].manufacturerName + ")");
     if (inst.isEmpty()) vst.addItem (-1, "Aun no hay VST escaneados", false);
-    m.addSubMenu ("Mis instrumentos VST", vst);
+    if (! MCL_LITE) m.addSubMenu ("Mis instrumentos VST", vst);
     auto uid = trackUid;
     m.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (&changeInst), [this, uid, inst] (int r)
     {

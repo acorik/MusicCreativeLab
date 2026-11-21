@@ -1,0 +1,36 @@
+name: ChromeOS / Linux Lite (.deb)
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  deb:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    # Debian 12 = the same base as ChromeOS Linux (Crostini), so the .deb installs there
+    container: debian:bookworm
+    timeout-minutes: 60
+    steps:
+      - name: Install build tools
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends git ca-certificates
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: packaging/linux/deps.sh
+      - name: Build, self-test and package
+        run: packaging/linux/build-deb.sh dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MusicCreativeLab-Lite-ChromeOS-${{ matrix.arch }}
+          path: dist/*.deb

@@ -33,7 +33,7 @@ AudioEngine::~AudioEngine()
 void AudioEngine::initialiseDevices (const juce::XmlElement* saved)
 {
     juce::AudioDeviceManager::AudioDeviceSetup setup;
-    setup.bufferSize = 256;
+    setup.bufferSize = MCL_LITE ? 512 : 256; // Lite: safer on slow CPUs (Chromebooks)
     auto err = deviceManager.initialise (2, 2, saved, true, {}, &setup);
     if (err.isNotEmpty()) deviceManager.initialiseWithDefaultDevices (2, 2);
 

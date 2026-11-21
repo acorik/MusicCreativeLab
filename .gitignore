@@ -4,3 +4,4 @@ dist/
 *.user
 asiosdk/
 asiosdk.zip
+build-lite/

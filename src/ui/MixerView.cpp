@@ -15,8 +15,11 @@ void showAddEffectMenu (AudioEngine& engine, Track* track, juce::Component* targ
     auto fx = engine.plugins.getEffects();
     for (int i = 0; i < fx.size(); ++i) vst.addItem (1000 + i, fx[i].name + "  (" + fx[i].manufacturerName + ")");
     if (fx.isEmpty()) vst.addItem (-1, "Aun no hay VST escaneados", false);
-    m.addSeparator();
-    m.addSubMenu ("Mis efectos VST", vst);
+    if (! MCL_LITE)
+    {
+        m.addSeparator();
+        m.addSubMenu ("Mis efectos VST", vst);
+    }
 
     auto uid = track != nullptr ? track->uid : -1;
     m.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (target), [&engine, uid, fx, onAdded] (int r)

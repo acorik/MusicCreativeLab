@@ -21,7 +21,7 @@ static void showAddTrackMenu (AudioEngine& engine, juce::Component* target)
     m.addSubMenu ("Synths y bajos", synths);
     m.addSubMenu ("Baterias (MPD218)", drums);
     m.addSubMenu ("Micro / voz", mic);
-    m.addSubMenu ("Mis instrumentos VST", vst);
+    if (! MCL_LITE) m.addSubMenu ("Mis instrumentos VST", vst);
     m.addSeparator();
     m.addItem (2, "Pista Lab Synth vacia");
     m.addItem (3, "Pista de audio vacia");
@@ -71,7 +71,7 @@ struct LiveView::Row : public juce::Component, private juce::Timer
         mode.setTooltip ("Libre: la grabacion empieza con tu primer golpe y el loop se cierra solo tras 2 compases de silencio");
         bars.setTooltip ("Largo del loop en compases (modo fijo)");
         quant.setTooltip ("Cuantizacion al grabar (con swing del master)");
-        startTimerHz (30);
+        startTimerHz (MCL_LITE ? 20 : 30);
     }
 
     void timerCallback() override

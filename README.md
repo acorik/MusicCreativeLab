@@ -45,3 +45,8 @@ JUCE se descarga solo. También compila en Linux para desarrollo, y `--selftest`
 Más información en [docs/GUIA.md](docs/GUIA.md) y [docs/ROADMAP.md](docs/ROADMAP.md).
 
 Licencia: GPLv3. Usa JUCE 8 (AGPLv3).
+
+## Chromebook / ChromeOS (version Lite, sin VST)
+
+Version ligera (~45 MB de RAM) para ChromeOS (Linux) y PCs con poca memoria: ver [docs/CHROMEOS.md](docs/CHROMEOS.md).
+Se compila con `-DMCL_LITE=ON`; el paquete `.deb` se genera con `packaging/linux/build-deb.sh`.

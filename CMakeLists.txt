@@ -19,8 +19,20 @@ FetchContent_MakeAvailable(JUCE)
 # Optional ASIO support: pass -DMCL_ASIO_SDK_DIR=path/to/asiosdk (folder that contains common/iasiodrv.h)
 set(MCL_ASIO_SDK_DIR "" CACHE PATH "Steinberg ASIO SDK folder (optional)")
 
+# Lite build: no VST hosting, lighter defaults. For ChromeOS (Linux) and low-RAM machines.
+option(MCL_LITE "Build the Lite edition (no VST hosting)" OFF)
+if(MCL_LITE)
+    set(MCL_PRODUCT "Music Creative Lab Lite")
+    set(MCL_LITE_DEF 1)
+    set(MCL_VST3_DEF 0)
+else()
+    set(MCL_PRODUCT "Music Creative Lab")
+    set(MCL_LITE_DEF 0)
+    set(MCL_VST3_DEF 1)
+endif()
+
 juce_add_gui_app(MusicCreativeLab
-    PRODUCT_NAME "Music Creative Lab"
+    PRODUCT_NAME "${MCL_PRODUCT}"
     COMPANY_NAME "Music Creative Lab"
     VERSION ${PROJECT_VERSION}
     ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.png"
@@ -48,7 +60,8 @@ target_compile_definitions(MusicCreativeLab PRIVATE
     JUCE_USE_CURL=0
     JUCE_WEB_BROWSER=0
     JUCE_DISPLAY_SPLASH_SCREEN=0
-    JUCE_PLUGINHOST_VST3=1
+    JUCE_PLUGINHOST_VST3=${MCL_VST3_DEF}
+    MCL_LITE=${MCL_LITE_DEF}
     JUCE_PLUGINHOST_VST=0
     JUCE_PLUGINHOST_LADSPA=0
     JUCE_PLUGINHOST_LV2=0

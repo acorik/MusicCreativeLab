@@ -165,7 +165,9 @@ private:
         add ([&] { Project::loadDemo (e, 0); m.bpmSlider.setValue (132.0, juce::dontSendNotification); m.tabs.setCurrentTabIndex (4); }, 1500,
              "01_tutoriales", [&] (juce::DynamicObject& o) { put (o, "tabs", &m.tabs); });
 
-        add ([&] { m.tabs.setCurrentTabIndex (0); select ("Keys"); e.play(); }, 5000, "02_pantalla_principal", [&] (juce::DynamicObject& o)
+        add ([&] { m.tabs.setCurrentTabIndex (0); select ("Keys");
+                   if (keepWav) e.startRecordingSet (outDir.getChildFile ("sesion_tutorial.wav"));
+                   e.play(); }, 5000, "02_pantalla_principal", [&] (juce::DynamicObject& o)
         {
             put (o, "topbar", &m.fileBtn); put (o, "browser", &m.browser); put (o, "tabs", &m.tabs);
             put (o, "inspector", &m.inspector); put (o, "keyboard", &m.keyboard); put (o, "scenes", m.live->getScenesComponent());
@@ -285,13 +287,15 @@ private:
         }
         add ({}, 5500, "21_loop_cerrado", [&] (juce::DynamicObject& o) { put (o, "row", m.live->getRowComponent (0)); });
         add ([&] { m.tabs.setCurrentTabIndex (2); }, 1500, "22_piano_roll_drums", [&] (juce::DynamicObject& o) { put (o, "tabs", &m.tabs); });
-        add ([&] { m.tabs.setCurrentTabIndex (0); if (auto* a = e.findAction ("transport.recset")) a->trigger(); }, 1100, "23_rec_set",
+        add ([&] { m.tabs.setCurrentTabIndex (0); if (! keepWav) if (auto* a = e.findAction ("transport.recset")) a->trigger(); }, keepWav ? 4000 : 1100, "23_rec_set",
              [&] (juce::DynamicObject& o) { put (o, "recset", &m.recSetBtn); put (o, "cpu", &m.cpuLabel); });
-        add ([&] { if (auto* a = e.findAction ("transport.recset")) a->trigger(); e.getLastRecording().deleteFile(); e.stop(); }, 500, {});
+        add ([&] { if (keepWav) { e.stop(); e.stopRecordingSet(); return; }
+                   if (auto* a = e.findAction ("transport.recset")) a->trigger(); e.getLastRecording().deleteFile(); e.stop(); }, 1000, {});
     }
 
     MainComponent& owner;
     juce::File outDir;
+    const bool keepWav = juce::SystemStats::getEnvironmentVariable ("MCL_TOUR_WAV", {}).isNotEmpty(); // also record the whole session
     FakeDevice fake;
     std::vector<Step> steps;
     juce::var regions { new juce::DynamicObject() };
