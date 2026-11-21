@@ -1,5 +1,6 @@
 #include "ui/MainComponent.h"
 #include "project/Project.h"
+#include "ui/ScreenshotTour.h"
 
 namespace mcl
 {
@@ -116,10 +117,16 @@ MainComponent::MainComponent (juce::ApplicationProperties& props)
     setWantsKeyboardFocus (true);
     setSize (1680, 980);
     startTimerHz (15);
+
+    if (auto dir = juce::SystemStats::getEnvironmentVariable ("MCL_TOUR", {}); dir.isNotEmpty())
+        startScreenshotTour (juce::File (dir));
 }
+
+void MainComponent::startScreenshotTour (const juce::File& d) { tour = std::make_unique<Tour> (*this, d); }
 
 MainComponent::~MainComponent()
 {
+    tour.reset();
     saveAutosave();
     if (auto xml = engine.deviceManager.createStateXml()) properties.getUserSettings()->setValue ("audioDevice", xml.get());
     if (auto xml = engine.mapper.toValueTree().createXml()) properties.getUserSettings()->setValue ("mappings", xml.get());

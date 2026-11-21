@@ -24,6 +24,7 @@ public:
 
     void saveAutosave();
     void openFile (const juce::File& f);
+    void startScreenshotTour (const juce::File& outDir); // dev tool: generates the tutorial screenshots
 
 private:
     void timerCallback() override;
@@ -62,6 +63,8 @@ private:
     std::unique_ptr<juce::FileChooser> chooser;
     juce::File projectFile;
     int tick = 0, keyOctave = 4;
+    struct Tour;
+    std::unique_ptr<Tour> tour;
 };
 
 } // namespace mcl

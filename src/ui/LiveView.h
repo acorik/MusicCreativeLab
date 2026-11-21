@@ -34,6 +34,8 @@ public:
     void paint (juce::Graphics& g) override;
 
     std::function<void (Track&)> onShowPianoRoll;
+    juce::Component* getRowComponent (int index);
+    juce::Component* getScenesComponent();
 
 private:
     struct Row;

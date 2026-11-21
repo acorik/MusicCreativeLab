@@ -27,6 +27,8 @@ public:
         o.folderName = "MusicCreativeLab";
         o.osxLibrarySubFolder = "Application Support";
         properties.setStorageParameters (o);
+        if (auto sc = juce::SystemStats::getEnvironmentVariable ("MCL_SCALE", {}); sc.isNotEmpty())
+            juce::Desktop::getInstance().setGlobalScaleFactor (sc.getFloatValue());
         mainWindow = std::make_unique<MainWindow> (getApplicationName(), properties);
         openFromCommandLine (commandLine);
     }

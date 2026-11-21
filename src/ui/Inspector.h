@@ -13,6 +13,8 @@ public:
     void resized() override;
     void paint (juce::Graphics& g) override;
     void selectEffect (int trackUid, int fxIndex);
+    void scrollToBottom() { viewport.setViewPosition (0, content.getHeight()); }
+    void scrollToTop() { viewport.setViewPosition (0, 0); }
 
 private:
     struct DrumPads;

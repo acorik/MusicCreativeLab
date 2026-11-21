@@ -161,6 +161,16 @@ struct LiveView::Row : public juce::Component, private juce::Timer
         g.fillRoundedRectangle (lane, 4.0f);
         auto st = track.getClipState();
         auto len = juce::jmax (0.25, track.getClipLength());
+        // free-mode recording: the clip is open-ended, so show it growing in powers of two bars
+        const bool freeRec = st == ClipState::Recording && preview.lengthBeats > 4.0 * 32.0;
+        if (freeRec)
+        {
+            auto need = juce::jmax (4.0, track.getClipPosition() + 0.5);
+            for (auto& n : preview.notes) need = juce::jmax (need, n.start + n.length);
+            double l = 4.0;
+            while (l < need) l *= 2.0;
+            len = l;
+        }
         auto stateCol = st == ClipState::Recording ? Colours::rec : st == ClipState::Overdub ? juce::Colour (0xffff9f5a)
                       : st == ClipState::Playing ? track.colour : st == ClipState::Armed || st == ClipState::WaitingForNote ? Colours::rec.withAlpha (0.5f)
                       : Colours::outline;
@@ -171,7 +181,7 @@ struct LiveView::Row : public juce::Component, private juce::Timer
             int lo = 127, hi = 0;
             for (auto& n : preview.notes) { lo = juce::jmin (lo, n.pitch); hi = juce::jmax (hi, n.pitch); }
             auto range = (float) juce::jmax (12, hi - lo + 1);
-            auto plen = juce::jmax (0.25, preview.lengthBeats);
+            auto plen = freeRec ? len : juce::jmax (0.25, preview.lengthBeats);
             g.setColour (track.colour.withAlpha (st == ClipState::Stopped ? 0.3f : 0.75f));
             for (auto& n : preview.notes)
             {
@@ -203,7 +213,7 @@ struct LiveView::Row : public juce::Component, private juce::Timer
 
         auto label = clipStateName (st);
         if (st == ClipState::Playing || st == ClipState::Overdub || st == ClipState::Recording)
-            label << "  " << juce::String (len / 4.0, 0) << " comp";
+            label << (freeRec ? "  (libre) " : "  ") << juce::String (len / 4.0, 0) << " comp";
         if (st == ClipState::Empty) label = "Vacio: pulsa REC";
         g.setFont (juce::FontOptions (12.0f, juce::Font::bold));
         g.setColour (st == ClipState::Empty ? Colours::textDim : Colours::text);
@@ -359,6 +369,9 @@ void LiveView::rebuild()
 }
 
 void LiveView::paint (juce::Graphics& g) { g.fillAll (Colours::bg); }
+
+juce::Component* LiveView::getRowComponent (int index) { return juce::isPositiveAndBelow (index, rows.size()) ? rows[index] : nullptr; }
+juce::Component* LiveView::getScenesComponent() { return scenes.get(); }
 
 void LiveView::resized()
 {
